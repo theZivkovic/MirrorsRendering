@@ -52,6 +52,10 @@ module.exports = env => {
 						fallback: 'style-loader',
 						use: 'css-loader!postcss-loader!sass-loader'
 					}) : 'style-loader!css-loader!postcss-loader!sass-loader'
+				},
+				{
+					test: /\.glsl$/,
+					loader: 'webpack-glsl-loader'
 				}
 			]
 		},
