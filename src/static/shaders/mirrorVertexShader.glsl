@@ -1,5 +1,8 @@
 
+varying vec4 clip_coords;
+
 void main()
 {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    clip_coords = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    gl_Position = clip_coords;
 }
