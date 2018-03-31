@@ -22,17 +22,28 @@ export default class MirrorsRendering {
 			magFilter: THREE.NearestFilter
 		});
 		
-		let planeGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
-		let planeMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff});
-		this._plane =  new THREE.Mesh(planeGeometry, planeMaterial);
-		this._plane.lookAt(new THREE.Vector3(0.0, 1.0, 0.0));
-		this._bufferScene.add(this._plane.clone());
-		this._scene.add(this._plane.clone());
+		let groundPlaneGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
+		let groundPlaneMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff});
+		this._groundPlane =  new THREE.Mesh(groundPlaneGeometry, groundPlaneMaterial);
+		this._groundPlane.lookAt(new THREE.Vector3(0.0, 1.0, 0.0));
+		this._bufferScene.add(this._groundPlane.clone());
+		this._scene.add(this._groundPlane.clone());
+ 
+		let behindMirrorPlaneGeometry = new THREE.PlaneGeometry(12, 12, 20, 20);
+		let behindMirrorPlaneMaterial = new THREE.MeshPhongMaterial({
+			color: 0x0000ff,
+			side: THREE.DoubleSide
+		});
+		this._behindMirrorPlane =  new THREE.Mesh(behindMirrorPlaneGeometry, behindMirrorPlaneMaterial);
+		this._behindMirrorPlane.position.set(0.0, 5.0, -4.01);
+		//this._bufferScene.add(this._behindMirrorPlane.clone());
+		this._scene.add(this._behindMirrorPlane.clone());
+
 
 		let cubeGeometry = new THREE.CubeGeometry(1,1,1);
 		let cubeMaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
 		this._cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-		this._cube.position.set(0.0, 5.0, 0.0);
+		this._cube.position.set(0.0, 5.0, 5.0);
 		this._bufferScene.add(this._cube.clone());
 		this._scene.add(this._cube.clone());
 
@@ -43,7 +54,7 @@ export default class MirrorsRendering {
 		});
 
 		this._mirror = new THREE.Mesh(mirrorGeometry, this._mirrorMaterial);
-		this._mirror.position.set(0.0, 5.0, -5.0);
+		this._mirror.position.set(0.0, 5.0, -4.0);
 		this._scene.add(this._mirror);
 
 		this._camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
@@ -71,10 +82,17 @@ export default class MirrorsRendering {
 		return reflectedPoint;
 	}
 
-	syncBackCameraWithMainCameraPosition(){
-		this._backCamera.position.copy(this._camera.position);
-		this._backCamera.rotation.copy(this._camera.rotation);
+	syncBackCameraWithMainCameraPosition() {
+
+		let newCameraPosition = this.reflectPointOverMirror(this._camera.position);
+		let newLookAtPosition = new THREE.Vector3(0, 0, -1);
+		newLookAtPosition.applyMatrix4(this._camera.matrixWorld);
+		newLookAtPosition = this.reflectPointOverMirror(newLookAtPosition);
+
+		this._backCamera.position.copy(newCameraPosition);
+		this._backCamera.lookAt(newLookAtPosition);
 		this._backCamera.updateMatrix();
+
 	}
 
 	start() {
