@@ -24,11 +24,14 @@ export default class MirrorsRendering {
 		this._mirrorRender = new MirrorRenderer(this._camera);
 		this._mirrorRender.mesh.position.set(0.0, 5.0, -4.0);
 		this._scene.add(this._mirrorRender.mesh);
+		this.addMirrorFrame(this._mirrorRender, new THREE.Vector2(10.1, 10.1), 0xFF0000);
+	
 
 		this._mirrorRender2 = new MirrorRenderer(this._camera);
 		this._mirrorRender2.mesh.lookAt(1.0, 0.0, -1.0);
 		this._mirrorRender2.mesh.position.set(-5.0, 5.0, 5.0);
 		this._scene.add(this._mirrorRender2.mesh);
+		this.addMirrorFrame(this._mirrorRender2, new THREE.Vector2(10.1, 10.1), 0x00FF00);
 
 		let groundPlaneGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
 		let groundPlaneMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff});
@@ -57,9 +60,21 @@ export default class MirrorsRendering {
 		this.start();
 	}
 
+	addMirrorFrame(mirrorRenderer, mirrorSize, color){
+		let frameGeometry = new THREE.PlaneGeometry(mirrorSize.x, mirrorSize.y, Math.round(Math.max(mirrorSize.x, mirrorSize.y)));
+		let frameMaterial = new THREE.MeshPhongMaterial({color: color, side: THREE.DoubleSide});
+		let frameMesh = new THREE.Mesh(frameGeometry, frameMaterial);
+		frameMesh.position.copy(mirrorRenderer.mesh.position);
+		frameMesh.quaternion.copy(mirrorRenderer.mesh.quaternion);
+		frameMesh.updateMatrix();
+		let mirrorDirection = mirrorRenderer.mesh.getWorldDirection();
+		mirrorDirection.normalize();
+		mirrorDirection.multiplyScalar(0.01);
+		frameMesh.position.sub(mirrorDirection);
+		this._scene.add(frameMesh);
+	}
+
 	start() {
-		
-		
 		this.render();
 		this._controls.update();
 		this._mirrorRender.update();
