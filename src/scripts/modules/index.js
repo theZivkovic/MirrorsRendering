@@ -11,7 +11,8 @@ export default class MirrorsRendering {
 		
 		this._container = container;
 
-		this._renderer = new THREE.WebGLRenderer();
+		this._renderer = new THREE.WebGLRenderer({antialias: true});
+		this._renderer.setClearColor( 0x000000, 1 );
 		this._renderer.setSize(window.innerWidth, window.innerHeight);
 		this._container.appendChild(this._renderer.domElement);
 
@@ -24,37 +25,37 @@ export default class MirrorsRendering {
 		this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement);
 
 		this._mirrorRenderer = new MirrorRenderer(this._camera, new THREE.Vector2(5.0, 5.0));
-		this._mirrorRenderer.mesh.position.set(0.0, 5.0, -4.0);
+		this._mirrorRenderer.mesh.position.set(0.0, 5.0, -10.0);
 		this._scene.add(this._mirrorRenderer.mesh);
 		
-		this._mirrorFrame = this.makeMirrorFrame(this._mirrorRenderer, 0xFF0000);
+		this._mirrorFrame = this.makeMirrorFrame(this._mirrorRenderer, 0x618930);
 		this._scene.add(this._mirrorFrame);
 	
-
-		this._mirrorRenderer2 = new MirrorRenderer(this._camera, new THREE.Vector2(8.0, 8.0));
-		this._mirrorRenderer2.mesh.lookAt(1.0, 0.0, -1.0);
-		this._mirrorRenderer2.mesh.position.set(-5.0, 5.0, 2.0);
+		this._mirrorRenderer2 = new MirrorRenderer(this._camera, new THREE.Vector2(20.0, 20.0));
+		this._mirrorRenderer2.mesh.lookAt(1.0, 0.0, 0.0);
+		this._mirrorRenderer2.mesh.position.set(-10.0, 10.1, 0.0);
 		this._scene.add(this._mirrorRenderer2.mesh);
 		
-		this._mirrorFrame2 = this.makeMirrorFrame(this._mirrorRenderer2, 0xFF0000);
+		this._mirrorFrame2 = this.makeMirrorFrame(this._mirrorRenderer2, 0x618930);
 		this._scene.add(this._mirrorFrame2);
 	
 
 		let groundPlaneGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
-		let groundPlaneMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff});
+		let groundPlaneMaterial = new THREE.MeshPhongMaterial({color: 0x474A4F});
 		this._groundPlane =  new THREE.Mesh(groundPlaneGeometry, groundPlaneMaterial);
 		this._groundPlane.lookAt(new THREE.Vector3(0.0, 1.0, 0.0));
 	
 		this._scene.add(this._groundPlane.clone());
 		
 		let cubeGeometry = new THREE.CubeGeometry(3,3,3);
-		let cubeMaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
+		let cubeMaterial = new THREE.MeshPhongMaterial({color: 0x87C232});
 		this._cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 		this._cube.position.set(0.0, 5.0, 2.0);
 		this._scene.add(this._cube);
 		
 
-		this._light0 = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+		this._light0 = new THREE.PointLight( 0xffffff, 1, 1000 );
+		this._light0.position.set(0.0, 40.0, 0.0);
 		
 		this._scene.add(this._light0.clone());
 
@@ -64,6 +65,7 @@ export default class MirrorsRendering {
 		this._mirrorRenderer2.addExcludedObject(this._mirrorRenderer.mesh);
 		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame2);
 		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame);
+
 		this.start();
 	}
 
