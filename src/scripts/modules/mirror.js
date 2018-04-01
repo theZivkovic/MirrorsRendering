@@ -4,11 +4,15 @@ import mirrorFragmentShader from '../../static/shaders/mirrorFragmentShader.glsl
 
 export default class MirrorRenderer {
 
-    constructor(mainCamera) {
+    constructor(mainCamera, mirrorSize) {
         this._mainCamera = mainCamera;
+        this._mirrorSize = mirrorSize;
         this._reflectedCamera = this._mainCamera.clone();
         this._initializeMesh();
         this._initializeBufferScene();
+        
+        // this array stores mirrored objects and originals
+        this._clonesArray = [];
     }
 
     _initializeBufferScene(){
@@ -20,7 +24,7 @@ export default class MirrorRenderer {
     }
 
     _initializeMesh() {
-        let mirrorGeometry = new THREE.PlaneGeometry(10, 10, 10);
+        let mirrorGeometry = new THREE.PlaneGeometry(this._mirrorSize.x, this._mirrorSize.y, Math.round(Math.max(this._mirrorSize.x, this._mirrorSize.y)));
 		this._mirrorMaterial = new THREE.ShaderMaterial({
 			vertexShader: mirrorVertexShader,
 			fragmentShader: mirrorFragmentShader
@@ -52,6 +56,11 @@ export default class MirrorRenderer {
     
     // PUBLIC INTERFACE
 
+    /* get (width, height) of the mirror */
+    get mirrorSize(){
+        return this._mirrorSize;
+    }
+
     /* this is used for manipulating the mirror plane (rotate, translate etc.) */
     get mesh() {
         return this._mirrorMesh;
@@ -59,12 +68,22 @@ export default class MirrorRenderer {
     
     /* Each object that you want reflected in mirror should be added to buffer scene */
     addToBufferScene(mesh){
-        this._bufferScene.add(mesh);
+        let meshClone = mesh.clone();
+        this._bufferScene.add(meshClone);
+        this._clonesArray.push({
+            original: mesh,
+            clone: meshClone
+        });
     }
     
     /* Update the internal state before rendering */
     update() {
         this.syncBackCameraWithMainCameraPosition();
+        this._clonesArray.forEach((clonesPair) => {
+            clonesPair.clone.position.copy(clonesPair.original.position);
+            clonesPair.clone.quaternion.copy(clonesPair.original.quaternion);
+            clonesPair.clone.updateMatrix();
+        });
     }
 
     /* Render using given render */
