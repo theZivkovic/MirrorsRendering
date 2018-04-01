@@ -23,17 +23,22 @@ export default class MirrorsRendering {
 
 		this._controls = new THREE.OrbitControls(this._camera, this._renderer.domElement);
 
-		this._mirrorRender = new MirrorRenderer(this._camera, new THREE.Vector2(5.0, 5.0));
-		this._mirrorRender.mesh.position.set(0.0, 5.0, -4.0);
-		this._scene.add(this._mirrorRender.mesh);
-		this.addMirrorFrame(this._mirrorRender, 0xFF0000);
+		this._mirrorRenderer = new MirrorRenderer(this._camera, new THREE.Vector2(5.0, 5.0));
+		this._mirrorRenderer.mesh.position.set(0.0, 5.0, -4.0);
+		this._scene.add(this._mirrorRenderer.mesh);
+		
+		this._mirrorFrame = this.makeMirrorFrame(this._mirrorRenderer, 0xFF0000);
+		this._scene.add(this._mirrorFrame);
 	
 
-		this._mirrorRender2 = new MirrorRenderer(this._camera, new THREE.Vector2(8.0, 8.0));
-		this._mirrorRender2.mesh.lookAt(1.0, 0.0, 0.0);
-		this._mirrorRender2.mesh.position.set(-5.0, 5.0, 2.0);
-		this._scene.add(this._mirrorRender2.mesh);
-		this.addMirrorFrame(this._mirrorRender2, 0x00FF00);
+		this._mirrorRenderer2 = new MirrorRenderer(this._camera, new THREE.Vector2(8.0, 8.0));
+		this._mirrorRenderer2.mesh.lookAt(1.0, 0.0, -1.0);
+		this._mirrorRenderer2.mesh.position.set(-5.0, 5.0, 2.0);
+		this._scene.add(this._mirrorRenderer2.mesh);
+		
+		this._mirrorFrame2 = this.makeMirrorFrame(this._mirrorRenderer2, 0xFF0000);
+		this._scene.add(this._mirrorFrame2);
+	
 
 		let groundPlaneGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
 		let groundPlaneMaterial = new THREE.MeshPhongMaterial({color: 0x0000ff});
@@ -41,26 +46,28 @@ export default class MirrorsRendering {
 		this._groundPlane.lookAt(new THREE.Vector3(0.0, 1.0, 0.0));
 	
 		this._scene.add(this._groundPlane.clone());
-		this._mirrorRender.addToBufferScene(this._groundPlane);
-		this._mirrorRender2.addToBufferScene(this._groundPlane);
-	
+		
 		let cubeGeometry = new THREE.CubeGeometry(3,3,3);
 		let cubeMaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
 		this._cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 		this._cube.position.set(0.0, 5.0, 2.0);
 		this._scene.add(this._cube);
-		this._mirrorRender.addToBufferScene(this._cube);
-		this._mirrorRender2.addToBufferScene(this._cube);
+		
 
 		this._light0 = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 		
 		this._scene.add(this._light0.clone());
-		this._mirrorRender.addToBufferScene(this._light0);
-		this._mirrorRender2.addToBufferScene(this._light0);
+
+		this._mirrorRenderer.addExcludedObject(this._mirrorRenderer2.mesh);
+		this._mirrorRenderer.addExcludedObject(this._mirrorFrame);
+		this._mirrorRenderer.addExcludedObject(this._mirrorFrame2);
+		this._mirrorRenderer2.addExcludedObject(this._mirrorRenderer.mesh);
+		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame2);
+		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame);
 		this.start();
 	}
 
-	addMirrorFrame(mirrorRenderer, color){
+	makeMirrorFrame(mirrorRenderer, color){
 		let mirrorSize = mirrorRenderer.mirrorSize.clone().add(new THREE.Vector2(FRAME_PADDING, FRAME_PADDING));
 		let frameGeometry = new THREE.PlaneGeometry(mirrorSize.x, mirrorSize.y, Math.round(Math.max(mirrorSize.x, mirrorSize.y)));
 		let frameMaterial = new THREE.MeshPhongMaterial({color: color, side: THREE.DoubleSide});
@@ -72,22 +79,24 @@ export default class MirrorsRendering {
 		mirrorDirection.normalize();
 		mirrorDirection.multiplyScalar(0.01);
 		frameMesh.position.sub(mirrorDirection);
-		this._scene.add(frameMesh);
+		return frameMesh;
+
 	}
 
 	start() {
 		this._cube.rotation.y += 0.01;
 		this._cube.rotation.x += 0.01;
+
 		this.render();
 		this._controls.update();
-		this._mirrorRender.update();
-		this._mirrorRender2.update();
+		this._mirrorRenderer.update();
+		this._mirrorRenderer2.update();
 		requestAnimationFrame(this.start.bind(this));		
 	}
 
 	render() {
-		this._mirrorRender.render(this._renderer);
-		this._mirrorRender2.render(this._renderer);
+		this._mirrorRenderer.render(this._renderer, this._scene);
+		this._mirrorRenderer2.render(this._renderer, this._scene);
 		this._renderer.render(this._scene, this._camera);
 	}
 }

@@ -9,14 +9,12 @@ export default class MirrorRenderer {
         this._mirrorSize = mirrorSize;
         this._reflectedCamera = this._mainCamera.clone();
         this._initializeMesh();
-        this._initializeBufferScene();
-        
-        // this array stores mirrored objects and originals
-        this._clonesArray = [];
+        this._initializeBufferTexture();
+
+        this._excludedObjects = [];
     }
 
-    _initializeBufferScene(){
-        this._bufferScene = new THREE.Scene();
+    _initializeBufferTexture(){
 		this._bufferTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
 			minFilter: THREE.LinearFilter,
 			magFilter: THREE.NearestFilter
@@ -66,34 +64,41 @@ export default class MirrorRenderer {
         return this._mirrorMesh;
     }
     
-    /* Each object that you want reflected in mirror should be added to buffer scene */
-    addToBufferScene(mesh){
-        let meshClone = mesh.clone();
-        this._bufferScene.add(meshClone);
-        this._clonesArray.push({
-            original: mesh,
-            clone: meshClone
-        });
-    }
-    
     /* Update the internal state before rendering */
     update() {
         this.syncBackCameraWithMainCameraPosition();
-        this._clonesArray.forEach((clonesPair) => {
-            clonesPair.clone.position.copy(clonesPair.original.position);
-            clonesPair.clone.quaternion.copy(clonesPair.original.quaternion);
-            clonesPair.clone.updateMatrix();
-        });
     }
 
     /* Render using given render */
-    render(renderer) {
+    render(renderer, scene) {
+
+        // remember excluded objects visibility and hide them
+        this._excludedObjects.forEach((excludedObject) => {
+            excludedObject.lastVisible = excludedObject.object.visible;
+            excludedObject.object.visible = false;
+        });
+
         this._mirrorMaterial.uniforms['backCameraTexture'] = {
 			type: 't',
 			value: this._bufferTexture.texture
         }
-        renderer.render(this._bufferScene, this._reflectedCamera, this._bufferTexture);
+
+        // render the scene into the texture
+        renderer.render(scene, this._reflectedCamera, this._bufferTexture);
+
+        // restore the visibility of the excluded objects
+        this._excludedObjects.forEach((excludedObject) => {
+             excludedObject.object.visible = excludedObject.lastVisible;
+        });
+        
     }
 
+    /* set objects that are to be excluded from the reflection */
+    addExcludedObject(object){
+        this._excludedObjects.push({
+            object: object,
+            lastVisible: object.visible
+        });
+    }
 
 }
