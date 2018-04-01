@@ -8,5 +8,5 @@ projective texture mapping that you can find here: [thezivkovic.com/articles/mir
 ```
 - npm install
 - npm run dev
-- go to localhost:8080 in your browser
+- go to localhost:3000 in your browser
 ```

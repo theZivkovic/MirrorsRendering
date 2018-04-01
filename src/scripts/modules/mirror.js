@@ -52,25 +52,27 @@ export default class MirrorRenderer {
     
     // PUBLIC INTERFACE
 
-    updateUniforms() {
-        this._mirrorMaterial.uniforms['backCameraTexture'] = {
-			type: 't',
-			value: this._bufferTexture.texture
-        }
-    }
+    /* this is used for manipulating the mirror plane (rotate, translate etc.) */
     get mesh() {
         return this._mirrorMesh;
     }
     
-    get bufferScene(){
-        return this._bufferScene;
+    /* Each object that you want reflected in mirror should be added to buffer scene */
+    addToBufferScene(mesh){
+        this._bufferScene.add(mesh);
     }
-
+    
+    /* Update the internal state before rendering */
     update() {
         this.syncBackCameraWithMainCameraPosition();
     }
 
+    /* Render using given render */
     render(renderer) {
+        this._mirrorMaterial.uniforms['backCameraTexture'] = {
+			type: 't',
+			value: this._bufferTexture.texture
+        }
         renderer.render(this._bufferScene, this._reflectedCamera, this._bufferTexture);
     }
 

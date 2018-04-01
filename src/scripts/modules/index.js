@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import 'three/examples/js/controls/OrbitControls'
 
-import mirrorVertexShader from '../../static/shaders/mirrorVertexShader.glsl';
-import mirrorFragmentShader from '../../static/shaders/mirrorFragmentShader.glsl';
-
 import MirrorRenderer from './mirror';
 
 export default class MirrorsRendering {
@@ -29,7 +26,7 @@ export default class MirrorsRendering {
 		this._scene.add(this._mirrorRender.mesh);
 
 		this._mirrorRender2 = new MirrorRenderer(this._camera);
-		this._mirrorRender2.mesh.lookAt(1.0, 0.0, 0.0);
+		this._mirrorRender2.mesh.lookAt(1.0, 0.0, -1.0);
 		this._mirrorRender2.mesh.position.set(-5.0, 5.0, 5.0);
 		this._scene.add(this._mirrorRender2.mesh);
 
@@ -39,8 +36,8 @@ export default class MirrorsRendering {
 		this._groundPlane.lookAt(new THREE.Vector3(0.0, 1.0, 0.0));
 	
 		this._scene.add(this._groundPlane.clone());
-		this._mirrorRender.bufferScene.add(this._groundPlane.clone());
-		this._mirrorRender2.bufferScene.add(this._groundPlane.clone());
+		this._mirrorRender.addToBufferScene(this._groundPlane.clone());
+		this._mirrorRender2.addToBufferScene(this._groundPlane.clone());
 	
 	
 		let cubeGeometry = new THREE.CubeGeometry(1,1,1);
@@ -49,21 +46,20 @@ export default class MirrorsRendering {
 		this._cube.position.set(0.0, 5.0, 5.0);
 	
 		this._scene.add(this._cube.clone());
-		this._mirrorRender.bufferScene.add(this._cube.clone());
-		this._mirrorRender2.bufferScene.add(this._cube.clone());
+		this._mirrorRender.addToBufferScene(this._cube.clone());
+		this._mirrorRender2.addToBufferScene(this._cube.clone());
 
 		this._light0 = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 		
 		this._scene.add(this._light0.clone());
-		this._mirrorRender.bufferScene.add(this._light0.clone());
-		this._mirrorRender2.bufferScene.add(this._light0.clone());
+		this._mirrorRender.addToBufferScene(this._light0.clone());
+		this._mirrorRender2.addToBufferScene(this._light0.clone());
 		this.start();
 	}
 
 	start() {
 		
-		this._mirrorRender.updateUniforms();
-		this._mirrorRender2.updateUniforms();
+		
 		this.render();
 		this._controls.update();
 		this._mirrorRender.update();
