@@ -37,6 +37,11 @@ export default class MirrorsRendering {
 											  new THREE.Vector3(0.0, 6.1, -10.0),
 											  new THREE.Vector3(0.0, 0.0, 1.0));
 
+		this._mirrorEngine.addMirrorWithFrame(new THREE.Vector2(12, 12),
+												0x618930,
+												new THREE.Vector3(10.0, 6.1, 0.0),
+												new THREE.Vector3(-1.0, 0.0, 0.0));
+									  
 	
 
 		let groundPlaneGeometry = new THREE.PlaneGeometry(20, 20, 20, 20);
