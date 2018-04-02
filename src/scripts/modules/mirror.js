@@ -101,4 +101,13 @@ export default class MirrorRenderer {
         });
     }
 
+    setExcludedObjects(objects){
+        this._excludedObjects = objects.map((object) => {
+            return {
+                object,
+                lastVisible: object.visible
+            }
+        });
+    }
+
 }

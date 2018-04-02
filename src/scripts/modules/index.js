@@ -59,13 +59,6 @@ export default class MirrorsRendering {
 		
 		this._scene.add(this._light0.clone());
 
-		this._mirrorRenderer.addExcludedObject(this._mirrorRenderer2.mesh);
-		this._mirrorRenderer.addExcludedObject(this._mirrorFrame);
-		this._mirrorRenderer.addExcludedObject(this._mirrorFrame2);
-		this._mirrorRenderer2.addExcludedObject(this._mirrorRenderer.mesh);
-		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame2);
-		this._mirrorRenderer2.addExcludedObject(this._mirrorFrame);
-
 		this.start();
 	}
 
@@ -97,8 +90,26 @@ export default class MirrorsRendering {
 	}
 
 	render() {
+
+		this._mirrorRenderer.setExcludedObjects([
+			this._mirrorRenderer2.mesh,
+			this._mirrorFrame,
+			this._mirrorFrame2
+		]);
 		this._mirrorRenderer.render(this._renderer, this._scene);
+
+		this._mirrorRenderer2.setExcludedObjects([
+			this._mirrorFrame2
+		]);
+
 		this._mirrorRenderer2.render(this._renderer, this._scene);
+
+		this._mirrorRenderer.setExcludedObjects([
+			this._mirrorFrame
+		]);
+
+		this._mirrorRenderer.render(this._renderer, this._scene);
+
 		this._renderer.render(this._scene, this._camera);
 	}
 }
