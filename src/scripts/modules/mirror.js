@@ -9,16 +9,9 @@ export default class MirrorRenderer {
         this._mirrorSize = mirrorSize;
         this._reflectedCamera = this._mainCamera.clone();
         this._initializeMesh();
-        this._initializeBufferTexture();
 
         this._excludedObjects = [];
-    }
-
-    _initializeBufferTexture(){
-		this._bufferTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.NearestFilter
-		});
+        this._bufferTextures = [];
     }
 
     _initializeMesh() {
@@ -54,6 +47,13 @@ export default class MirrorRenderer {
     
     // PUBLIC INTERFACE
 
+    addBufferTexture(){
+		this._bufferTextures.push(new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.NearestFilter
+		}));
+    }
+
     /* get (width, height) of the mirror */
     get mirrorSize(){
         return this._mirrorSize;
@@ -69,8 +69,15 @@ export default class MirrorRenderer {
         this.syncBackCameraWithMainCameraPosition();
     }
 
+    useBufferTexture(index){
+        this._mirrorMaterial.uniforms['backCameraTexture'] = {
+			type: 't',
+			value: this._bufferTextures[index].texture
+        }
+    }
+
     /* Render using given render */
-    render(renderer, scene) {
+    render(renderer, scene, intoBufferTextureIndex) {
 
         // remember excluded objects visibility and hide them
         this._excludedObjects.forEach((excludedObject) => {
@@ -78,13 +85,8 @@ export default class MirrorRenderer {
             excludedObject.object.visible = false;
         });
 
-        this._mirrorMaterial.uniforms['backCameraTexture'] = {
-			type: 't',
-			value: this._bufferTexture.texture
-        }
-
         // render the scene into the texture
-        renderer.render(scene, this._reflectedCamera, this._bufferTexture);
+        renderer.render(scene, this._reflectedCamera, this._bufferTextures[intoBufferTextureIndex]);
 
         // restore the visibility of the excluded objects
         this._excludedObjects.forEach((excludedObject) => {

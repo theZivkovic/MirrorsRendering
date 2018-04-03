@@ -38,10 +38,15 @@ export default class MirrorEngine {
 		let mirrorFrame = this.makeMirrorFrame(mirrorRenderer, frameColorHex);
         this._scene.add(mirrorFrame);
 
+        mirrorRenderer.addBufferTexture();
+        mirrorRenderer.addBufferTexture();
+
         this._mirrorsWithFrames.push({
             mirrorRenderer: mirrorRenderer,
             frame: mirrorFrame
         });
+
+
     }
 
     update() {
@@ -57,7 +62,7 @@ export default class MirrorEngine {
             let excludedObjects = [];
 
             this._mirrorsWithFrames.forEach((m, i) => {
-                if (i > index){
+                if (i != index){
                     excludedObjects.push(m.mirrorRenderer.mesh);
                     excludedObjects.push(m.frame);
                 }
@@ -65,13 +70,19 @@ export default class MirrorEngine {
 
             excludedObjects.push(mirrorWithFrame.frame);
             mirrorWithFrame.mirrorRenderer.setExcludedObjects(excludedObjects);
-            mirrorWithFrame.mirrorRenderer.render(renderer, this._scene);
+            mirrorWithFrame.mirrorRenderer.useBufferTexture(0);
+            mirrorWithFrame.mirrorRenderer.render(renderer, this._scene, 0);
         });
 
         this._mirrorsWithFrames.forEach((mirrorWithFrame, index) => {
             mirrorWithFrame.mirrorRenderer.setExcludedObjects([mirrorWithFrame.frame]);
-            mirrorWithFrame.mirrorRenderer.render(renderer, this._scene);
+            mirrorWithFrame.mirrorRenderer.render(renderer, this._scene, 1);
         });
+
+        this._mirrorsWithFrames.forEach((mirrorWithFrame, index) => {
+            mirrorWithFrame.mirrorRenderer.useBufferTexture(1);
+        });
+      
     }
 
 
