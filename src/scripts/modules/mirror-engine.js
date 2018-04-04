@@ -1,6 +1,6 @@
 import MirrorRenderer from './mirror';
 
-const FRAME_PADDING = 0.1;
+const FRAME_PADDING = 0.3;
 
 export default class MirrorEngine {
 

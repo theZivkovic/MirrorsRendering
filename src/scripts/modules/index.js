@@ -58,10 +58,12 @@ export default class MirrorsRendering {
 		this._scene.add(this._cube);
 		
 
-		this._light0 = new THREE.PointLight( 0xffffff, 1, 1000 );
+		this._light0 = new THREE.PointLight( 0xffffff, 1 );
 		this._light0.position.set(0.0, 40.0, 0.0);
+		this._light1 = new THREE.AmbientLight( 0x404040, 2.0 ); // soft white light
+		this._scene.add(this._light0);
+		this._scene.add( this._light1 );
 		
-		this._scene.add(this._light0.clone());
 
 		this.start();
 	}
