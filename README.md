@@ -1,7 +1,7 @@
-# Mirrors rendering
+# Mirror rendering
 
 This is a small ThreeJS project that contains the code for my article about
-projective texture mapping that you can find here: [thezivkovic.com/articles/mirrors-rendering](http://www.thezivkovic.com/articles/mirrors-rendering).
+projective texture mapping that you can find here: [thezivkovic.com/articles/mirror-rendering](http://www.thezivkovic.com/articles/mirror-rendering).
 
 ### What you can do with it?
 
